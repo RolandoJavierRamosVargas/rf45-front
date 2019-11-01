@@ -51,14 +51,15 @@ width: 130px !important; /*Aquí va el ancho de la Celda*/
   overflow: auto;
   height: 280px;
 }
-.table {
+/* .table {
   
-  border-collapse: collapse;/*juntamos los border por td y la tabla en si en uno solo*/
+  border-collapse: collapse;
   width: 100%;
   border: 3px solid WHITE;
   border-radius: 5px;
   margin-top: 10px;
-}
+} */
+
 .centrar{
   text-align: center;
   align-content: center;
@@ -545,9 +546,8 @@ span .label-dato{
   font-weight: 100;
 }
 
-table thead tr td{
-  text-align: center;
-}
+
+
 span {
   margin: 0px;
   padding: 0px;

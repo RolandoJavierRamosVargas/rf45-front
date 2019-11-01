@@ -3,33 +3,35 @@ import "@trendmicro/react-sidenav/dist/react-sidenav.css";
 import { browserHistory } from "react-router-3";
 import CONFIG from "../Configuracion/Config";
 import swal from "sweetalert";
+import Swal from 'sweetalert2';
 import Select from "react-select";
 import { KeyObject } from "crypto";
 import Distritos from "./Distritos";
 import Telefono from "./Telefono";
 import Correo from "./Correo";
 import TiposTelefono from "./TiposTelefono";
+import TiposCorreo from "./TiposCorreo";
 
 class VistaDatosPersonales extends React.Component {
   constructor(props) {
     super(props);
 
-    dni: "",
-      (this.state = {
+    
+      this.state = {
         codigo: this.props.codigo,
+        dni: this.props.dni,
         id: 23,
         apePaterno: "",
         apeMaterno: "",
         nombre: "",
         fechaNacimiento: "",
-        domicilioActual: "aea",
+        domicilioActual: "",
         distrito: "",
         ubigeo: "",
         nTelefono:"",
         nTelefFijo: "",
         nTelefCelular: "",
         tipoTelefono:"",
-        arrayTelefonos:[],
         nombreCorreo:"",
         tipoCorreo:"",
         arrayCorreos:[],
@@ -37,37 +39,32 @@ class VistaDatosPersonales extends React.Component {
         correoLaboral: "",
         arrayDistritosLima: [],
         arrayTiposTelefono:[],
+        arrayTelefonos:[],
+        arrayTiposCorreo:[],
         estadoDomicilio: false
-      });
+      };
 
     this.onSubmitDatosPersonales = this.onSubmitDatosPersonales.bind(this);
-    console.log(2);
   }
 
   //RENDERIZADO INFINITO
   componentDidMount() {
-    fetch(CONFIG + "mse/alumno/buscar/" + this.state.codigo)
+    fetch(CONFIG + "mse/persona/buscar/" + this.state.codigo)
       .then(response => {
         return response.json();
       })
-      .then(alumno => {
+      .then(persona => {
         console.log(
-          "---Alumno------Alumno------Alumno------Alumno------Alumno------Alumno---"
+          "---persona------persona------persona------persona------persona------persona---"
         );
-        console.log(alumno);
+        console.log(persona);
         this.setState({
-          id: this.state.id,
-          apePaterno: alumno.apellidoPaterno,
-          apeMaterno: alumno.apellidoMaterno,
-          nombre: alumno.nombre,
-          fechaNacimiento: alumno.fechaNacimiento,
-          // domicilioActual: alumno.domicilioActual,
-          distrito: alumno.distrito,
-          ubigeo: alumno.ubigeo,
-          nTelefFijo: alumno.telefonoFijo,
-          nTelefCelular: alumno.telefonoCelular,
-          correoPersonal: alumno.correoPersonal,
-          correoLaboral: alumno.correoLaboral
+          id:persona.id,
+          apePaterno: persona.apellidoPaterno,
+          apeMaterno: persona.apellidoMaterno,
+          nombre: persona.nombres,
+          fechaNacimiento: persona.fechaNacimiento,
+          // domicilioActual: persona.domicilioActual,
         });
       })
       .catch(error => {
@@ -115,6 +112,77 @@ class VistaDatosPersonales extends React.Component {
       });
 
 
+
+      fetch(CONFIG + "mse/correo/tipoCorreo/")
+      .then(response => {
+        return response.json();
+      })
+      .then(tipoCorreo => {
+        console.log(
+          "---tipoCorreo------tipoCorreo------tipoCorreo--- ---tipoCorreo------tipoCorreo----"
+        );
+        console.log(tipoCorreo);
+        this.setState({
+          arrayTiposCorreo:tipoCorreo
+        })
+      
+      })
+      .catch(error => {
+        swal("Algo salió mal", "", "warning");
+        console.log(error);
+      });
+
+
+
+      let urlApi =
+      "https://raw.githubusercontent.com/ernestorivero/Ubigeo-Peru/master/json/ubigeo_peru_2016_distritos.json";
+    fetch(urlApi)
+      .then(respuesta => {
+        return respuesta.json();
+      })
+      .then(respuesta2 => {
+        console.log(typeof respuesta2);
+        console.log("ESTOY AQUI ESTOY AQUI ESTOY AQUI ESTOY AQUI ESTOY AQUI ESTOY AQUI ESTOY AQUI ESTOY AQUIESTOY AQUI");
+        console.log(respuesta2); 
+        let distritosLima = this.buscarLima(respuesta2);
+
+        if (distritosLima === null) {
+          console.log("No hay ningun distrito");
+          console.log(distritosLima);
+        } else {
+          console.log("Tenemos los distritos de lima");
+          this.setState({
+            arrayDistritosLima: distritosLima
+          });
+        }
+      });
+
+
+      console.log("Hola estoy aqui :'v :'v :'v :'v :'v :'v:'v :'v :'v:'v :'v :'v");
+      fetch(CONFIG+"mse/telefono/telefonos/"+this.state.id)
+      .then(respuesta=>{
+        return respuesta.json();
+      })
+      .then(telefonos=>{
+        console.log("Estamos aqui para qe nos veas--- X) X) X) X) Estamos aqui para qe nos veas--- X) X) X) X)");
+        console.log(telefonos);
+        this.setState({
+          arrayTelefonos:telefonos
+        })
+      })
+
+      console.log("Hola estoy aqui :'v :'v :'v :'v :'v :'v:'v :'v :'v:'v :'v :'v");
+      fetch(CONFIG+"mse/correo/correos/"+this.state.id)
+      .then(respuesta=>{
+        return respuesta.json();
+      })
+      .then(correos=>{
+        console.log("Estamos aqui para qe nos veas---CORREOSSSSSSSSS");
+        console.log(correos);
+        this.setState({
+          arrayCorreos:correos
+        })
+      })
   }
 
   setField(e) {
@@ -128,35 +196,69 @@ class VistaDatosPersonales extends React.Component {
     console.log(this.state.tipoTelefono);
     console.log(this.state.nTelefono);
     let nuevoTelefono={
-      tipo:this.state.tipoTelefono,
-      numero:this.state.nTelefono
+      idPersona:this.state.id,
+      idTipoTelefono:this.state.tipoTelefono,
+      numeroTelefonico:this.state.nTelefono
     }
     // console.log(nuevoTelefono);
-    
      const arrayTelefonos= [...this.state.arrayTelefonos,nuevoTelefono];
      console.log("El arreglo de telefonos es:",arrayTelefonos);
-     
-    // const arrayTelefonos=this.state.arrayTelefonos.push(nuevoTelefono);
-    console.log(1);
-    
+     // const arrayTelefonos=this.state.arrayTelefonos.push(nuevoTelefono);
     this.setState({
       arrayTelefonos:arrayTelefonos
     })
-    
-    console.log(2);
     console.log(this.state.arrayTelefonos);
-    console.log(3);
-    
     this.onSubmitGuardarTelefono(e);
 
   }
+  borrarTelefono = numeroTelefono =>{
+
+
+    console.log(numeroTelefono);
+    
+    //leer el state
+    const telefonosActuales= [...this.state.arrayTelefonos];
+    console.log("Antes...");
+    console.log(telefonosActuales);
+    
+
+    //borrar el elemento del state
+    const arrayTelefonos= telefonosActuales.filter(telefono=>telefono.numeroTelefonico!== numeroTelefono);
+    console.log("Despues...");
+    console.log(arrayTelefonos);
+    
+
+    //actualizar el state
+    this.setState({
+      arrayTelefonos
+    })
+
+    fetch(CONFIG + "mse/telefono/eliminar/"+numeroTelefono,{
+      method: "DELETE",
+      body: JSON.stringify({
+          id: numeroTelefono
+      }),
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json"
+    }
+  })
+    .then(response => {
+      swal("Eliminado correctamente", "", "success");
+      
+    })
+} 
+
+
+
   agregarCorreo=(e)=>{
     e.preventDefault();
     console.log(this.state.nombreCorreo);
     console.log(this.state.tipoCorreo);
     let nuevoCorreo={
-      tipo:this.state.tipoCorreo,
-      nombre:this.state.nombreCorreo
+      id:this.state.id,
+      idTipoCorreo:this.state.tipoCorreo,
+      correo:this.state.nombreCorreo
     }
     // console.log(nuevoTelefono);
     
@@ -169,10 +271,48 @@ class VistaDatosPersonales extends React.Component {
     this.setState({
       arrayCorreos
     })
-    
-  
-
+    this.onSubmitGuardarCorreo(e);
   }
+
+    borrarCorreo = correoBorrar =>{
+
+
+    console.log("El correo a borarr es : -> El correo a borarr es : -> El correo a borarr es : ->",correoBorrar);
+    
+    //leer el state
+    const correosActuales= [...this.state.arrayCorreos];
+    console.log("Antes...");
+    console.log(correosActuales);
+    
+
+    //borrar el elemento del state
+    const arrayCorreos= correosActuales.filter(correo=>correo.correo!== correoBorrar);
+    console.log("Despues...");
+    console.log(arrayCorreos);
+    
+
+    //actualizar el state
+    this.setState({
+      arrayCorreos
+    })
+
+
+    fetch(CONFIG + "mse/correo/eliminar/",{
+      method: "DELETE",
+      body: JSON.stringify({
+          correo: correoBorrar
+      }),
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json"
+    }
+  })
+    .then(response => {
+      swal("Eliminado correctamente", "", "success");
+    })
+
+} 
+
 
   render() {
     let distritosLima = this.state.arrayDistritosLima;
@@ -180,6 +320,7 @@ class VistaDatosPersonales extends React.Component {
     let arrayTelefonos=this.state.arrayTelefonos;
     let arrayCorreos=this.state.arrayCorreos;
     let arrayTiposTelefono=this.state.arrayTiposTelefono;
+    let arrayTiposCorreo=this.state.arrayTiposCorreo;
 
     if (distritosLima) {
       console.log(
@@ -193,13 +334,13 @@ class VistaDatosPersonales extends React.Component {
             <h2 className="titulo">Datos Personales</h2>
 
             <div className="input-dato">
-              {/* <div className="card card-primary">
+               <div className="card card-primary">
                 <div className="container bg-white">
                   <label className="label-dato">
                     N° DE DOCUMENTO DE IDENTIDAD (DNI O CARNE DE EXTRANJERÍA):
                     <input
                       type="text"
-                      name="name"
+                      name="codigo"
                       value={this.state.codigo}
                       disabled
                     />
@@ -208,7 +349,7 @@ class VistaDatosPersonales extends React.Component {
                     APELLIDO PATERNO:
                     <input
                       type="text"
-                      name="name"
+                      name="apePaterno"
                       value={this.state.apePaterno}
                       disabled
                     />
@@ -217,7 +358,7 @@ class VistaDatosPersonales extends React.Component {
                     APELLIDO MATERNO:
                     <input
                       type="text"
-                      name="name"
+                      name="apeMaterno"
                       value={this.state.apeMaterno}
                       disabled
                     />
@@ -226,7 +367,7 @@ class VistaDatosPersonales extends React.Component {
                     NOMBRES:
                     <input
                       type="text"
-                      name="name"
+                      name="nombre"
                       value={this.state.nombre}
                       disabled
                     />
@@ -235,7 +376,7 @@ class VistaDatosPersonales extends React.Component {
                     FECHA DE NACIMIENTO:
                     <input
                       type="date"
-                      name="name"
+                      name="fechaNacimiento"
                       value={this.state.fechaNacimiento}
                       disabled
                     />
@@ -243,16 +384,14 @@ class VistaDatosPersonales extends React.Component {
                 </div>
               </div>
 
-               */}
-              <div className="container card card-primary bg-white ">
-                <div className="container bg-light">
+               
+              <div className="container bg-white card card-primary ">
+                <div className="bg-light">
                   <button type="button" onClick={this.cambioEstadoCampo}>
                     <i className="fa fa-edit fa-2x"></i>
-                  </button>
-                    
-                  
+                  </button>            
                 </div>
-                {/* 
+                 
                 <label className="label-dato">
                   DOMICILIO ACTUAL:
                   <input
@@ -288,13 +427,13 @@ class VistaDatosPersonales extends React.Component {
                   </div>
                 </label>
                 <br></br>
-                <br></br> */}
+                
 
-                <label className="label-dato col-md-8">Telefono</label>
-                <div className="container bg-white">
+                <label className="label-dato">TELEFONO</label>
+                <div className="ml-3 mr-3">
                   <div className="form-group">
                     <div className="row">
-                      <div className="col col-md-2 pt-2">
+                      <div className="col col-md-3">
                         <select className="form-control" name="tipoTelefono" value={this.state.tipoTelefono} id="tipoTelefono" onChange={e => this.setField(e)} disabled>
                           <option value="DEFAULT">--Escoja una opcion--</option>
                           {Object.keys(arrayTiposTelefono).map(telefono=>(
@@ -308,13 +447,11 @@ class VistaDatosPersonales extends React.Component {
                         </select>
 
                       </div>
-                      
-
-                      <div className="col col-md-8">
+                      <div className="col col-md-7">
                         <div className="form-group">
                           <input
                             type="text"
-                            className="form-control"
+                            className="form-control text-center"
                             name="nTelefono"
                             id="numeroTelefono"
                             aria-describedby="helpId"
@@ -323,7 +460,7 @@ class VistaDatosPersonales extends React.Component {
                            disabled/>
                         </div>
                       </div>
-                      <div className="col col-md-2">
+                      <div className="col col-md-2 text-center">
                         
                         <button className="bg-white" id="btnTelefono" onClick={this.agregarTelefono}>
                           <i className="fa fa-plus-circle fa-3x"></i>
@@ -333,58 +470,56 @@ class VistaDatosPersonales extends React.Component {
                     </div>
                   </div>
                 </div>
+                
 
-                <div className="container bg-white"> 
-                        <div className="row">
-                          <div className="col col-md-12">
-                            <table>
-                              <thead>
+                <div className="ml-3 mr-3"> 
+                        
+                            <table className="table">
+                              <thead className="thead thead-dark">
                                   <tr>
-                                    <th>Tipo</th>
-                                    <th>Numero</th>
-                                    <th>Accion</th>
+                                    <th className="th1">Tipo</th>
+                                    <th className="th1">Numero</th>
+                                    <th className="th1">Accion</th>
                                   </tr>
                               </thead>
                               <tbody>
                               {Object.keys(arrayTelefonos).map(telefono=>(
                                   <Telefono 
                                   key={telefono}
-                                  tipo={arrayTelefonos[telefono].tipo}
-                                  numero={arrayTelefonos[telefono].numero}
+                                  tipo={arrayTelefonos[telefono].idTipoTelefono}
+                                  numero={arrayTelefonos[telefono].numeroTelefonico}
+                                  borrarTelefono={this.borrarTelefono}
                                   />
                               ))}
                               </tbody>
-
                               </table>
-                          </div>
-
-                        </div>
+                          
                 </div>
 
+
+
                 
-
-              
-
-                 
-
-                <label className="label-dato col-md-8">
-                  Correo Electronico
-                </label>
-                <div className="container bg-white">
+                <label className="label-dato">CORREO ELECTRONICO</label>
+                <div className="ml-3 mr-3">
                   <div className="form-group">
                     <div className="row">
-                      <div className="col col-md-2 pt-2">
+                      <div className="col col-md-3">
                         <select className="form-control" id="tipoCorreo" name="tipoCorreo" value={this.state.tipoCorreo} id="tipoCorreo" onChange={e => this.setField(e)} disabled>
                           <option value="DEFAULT">--Escoja una opcion--</option>
-                          <option value="personal" >Personal</option>
-                          <option value="laboral"> Laboral</option>
+                          {Object.keys(arrayTiposCorreo).map(correo=>(
+                            <TiposCorreo 
+                            key={correo}
+                            id={arrayTiposCorreo[correo].id}
+                            correo={arrayTiposCorreo[correo].tipoCorreo}
+                            />
+                          ))}
                         </select>
                       </div>
-                      <div className="col col-md-8">
+                      <div className="col col-md-7">
                         <div className="form-group">
                           <input
                             type="text"
-                            className="form-control"
+                            className="form-control text-center"
                             name="nombreCorreo"
                             id="nombreCorreo"
                             aria-describedby="helpId"
@@ -394,7 +529,7 @@ class VistaDatosPersonales extends React.Component {
                           />
                         </div>
                       </div>
-                      <div className="col col-md-2">
+                      <div className="col col-md-2 text-center">
                         <button className="bg-white" onClick={this.agregarCorreo}>
                           <i className="fa fa-plus-circle fa-3x"></i>
                         </button>
@@ -403,37 +538,31 @@ class VistaDatosPersonales extends React.Component {
                   </div>
                 </div>
 
-               
-
-                <div className="container bg-white"> 
-                        <div className="row">
-                          <div className="col col-md-12">
-                            <table>
-                              <thead>
+                <div className="ml-3 mr-3"> 
+                            <table className="table">
+                              <thead className="thead-dark">
                                   <tr>
-                                    <th>Tipo</th>
-                                    <th>Correo</th>
+                                    <th className="th1">Tipo</th>
+                                    <th className="th1">Correo</th>
+                                    <th className="th1">Accion</th>
                                   </tr>
                               </thead>
                               <tbody>
                               {Object.keys(arrayCorreos).map(correo=>(
                                   <Correo 
                                   key={correo}
-                                  tipo={arrayCorreos[correo].tipo}
-                                  nombre={arrayCorreos[correo].nombre}
+                                  tipo={arrayCorreos[correo].idTipoCorreo}
+                                  correo={arrayCorreos[correo].correo}
+                                  borrarCorreo={this.borrarCorreo}
                                   />
                               ))}
                               </tbody>
-
                               </table>
-                          </div>
-
-                        </div>
-                </div>
+                </div>  
 
 
+                
 
-               
               </div>
 
               <div className="row">
@@ -458,43 +587,14 @@ class VistaDatosPersonales extends React.Component {
     return contenido;
   }
 
-  componentWillMount() {
-    let urlApi =
-      "https://raw.githubusercontent.com/ernestorivero/Ubigeo-Peru/master/json/ubigeo_peru_2016_distritos.json";
-    fetch(urlApi)
-      .then(respuesta => {
-        return respuesta.json();
-      })
-      .then(respuesta2 => {
-        console.log(typeof respuesta2);
-        console.log("ESTOY AQUI ESTOY AQUI ESTOY AQUI ESTOY AQUI ESTOY AQUI ESTOY AQUI ESTOY AQUI ESTOY AQUIESTOY AQUI");
-        
-        console.log(respuesta2);
-        
-        let distritosLima = this.buscarLima(respuesta2);
-
-        if (distritosLima === null) {
-          console.log("No hay ningun distrito");
-          console.log(distritosLima);
-        } else {
-          console.log("Tenemos los distritos de lima");
-          this.setState({
-            arrayDistritosLima: distritosLima
-          });
-        }
-      });
-      console.log("Hola estoy aqui :'v :'v :'v :'v :'v :'v:'v :'v :'v:'v :'v :'v");
-      
-     
-
-  }
+ 
 
   //Deshabilitar y habilitar campos
   cambioEstadoCampo = e => {
     e.preventDefault();
     console.log("Evaluaremos el estado");
-    // let domicilioActual = document.getElementById("domicilioActual");
-    // let ubigeo = document.getElementById("ubigeo");
+    let domicilioActual = document.getElementById("domicilioActual");
+    let ubigeo = document.getElementById("ubigeo");
     let tipoTelefono = document.getElementById("tipoTelefono");
     let numeroTelefono = document.getElementById("numeroTelefono");
     let btnTelefono = document.getElementById("btnTelefono");
@@ -502,8 +602,8 @@ class VistaDatosPersonales extends React.Component {
     let nombreCorreo = document.getElementById("nombreCorreo");
    
 
-    // domicilioActual.disabled = !domicilioActual.disabled;
-    // ubigeo.disabled = !ubigeo.disabled;
+    domicilioActual.disabled = !domicilioActual.disabled;
+    ubigeo.disabled = !ubigeo.disabled;
     tipoTelefono.disabled=!tipoTelefono.disabled;
     numeroTelefono.disabled=!numeroTelefono.disabled;
     tipoCorreo.disabled=!tipoCorreo.disabled;
@@ -530,7 +630,7 @@ class VistaDatosPersonales extends React.Component {
     console.log("--ENVIAREMOS LOS DATOS DEL TELEFONO");
     console.log(
     JSON.stringify({
-      idPersona: 24,
+      idPersona: this.state.id,
       idTipoTelefono:this.state.tipoTelefono,
       numeroTelefonico:this.state.nTelefono
 
@@ -540,7 +640,7 @@ class VistaDatosPersonales extends React.Component {
     fetch(CONFIG + "mse/telefono/guardar/", {
       method: "POST",
       body: JSON.stringify({
-        idPersona: "24" ,
+        idPersona: this.state.id ,
         idTipoTelefono: this.state.tipoTelefono,
         numeroTelefonico: this.state.nTelefono
   
@@ -552,16 +652,37 @@ class VistaDatosPersonales extends React.Component {
     })
       .then(response => {
         swal("Guardado Correctamente", "", "success");
-        return response.json();
       })
-      .then(alumno => {
-        console.log("---RESPUESTA---");
-        console.log(alumno);
+  }
+  onSubmitGuardarCorreo=(e)=>{
+    e.preventDefault();
+    console.log("Enviaremos los datos del correo");
+    console.log(
+    JSON.stringify({
+      id: this.state.id ,
+      idTipoCorreo: this.state.tipoCorreo,
+      correo: this.state.nombreCorreo
+
+    })
+    )
+
+    fetch(CONFIG + "mse/correo/guardar/", {
+      method: "POST",
+      body: JSON.stringify({
+        id: this.state.id ,
+        idTipoCorreo: this.state.tipoCorreo,
+        correo: this.state.nombreCorreo
+  
+      }),
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json"
+      } 
+    })
+      .then(response => {
+        swal("Guardado Correctamente", "", "success");
       })
-      .catch(error => {
-        swal("Algo salió mal", "", "warning");
-        console.log(error);
-      });
+    
   }
 
   //Metodo para guardar el domicilio de una persona
@@ -632,6 +753,8 @@ class VistaDatosPersonales extends React.Component {
 
   //Metodo para actualizar los datos personales de un alumno
   onSubmitDatosPersonales = e => {
+
+    //De momento este codigo no es utilizado para nada
     e.preventDefault();
     console.log("---ENVIA---");
     console.log(

@@ -20,7 +20,7 @@ class VistaDatosPersonales extends React.Component {
       this.state = {
         codigo: this.props.codigo,
         dni: this.props.dni,
-        id: 23,
+        id:0,
         apePaterno: "",
         apeMaterno: "",
         nombre: "",
@@ -43,64 +43,91 @@ class VistaDatosPersonales extends React.Component {
         arrayTiposCorreo:[],
         estadoDomicilio: false
       };
+      
+      console.log(3);
+      
 
     this.onSubmitDatosPersonales = this.onSubmitDatosPersonales.bind(this);
   }
 
+
   //RENDERIZADO INFINITO
   componentDidMount() {
+    
+    console.log(2);
+    
+    //buscar persona segun su codigo
     fetch(CONFIG + "mse/persona/buscar/" + this.state.codigo)
       .then(response => {
         return response.json();
       })
       .then(persona => {
-        console.log(
-          "---persona------persona------persona------persona------persona------persona---"
-        );
-        console.log(persona);
         this.setState({
           id:persona.id,
           apePaterno: persona.apellidoPaterno,
           apeMaterno: persona.apellidoMaterno,
           nombre: persona.nombres,
-          fechaNacimiento: persona.fechaNacimiento,
-          // domicilioActual: persona.domicilioActual,
+          fechaNacimiento: persona.fechaNacimiento
+        
         });
-      })
-      .catch(error => {
-        swal("Algo salió mal", "", "warning");
-        console.log(error);
-      });
 
-    fetch(CONFIG + "mse/domicilio/buscar/" + this.state.id)
-      .then(response => {
+      })
+      .then(()=>{
+        fetch(CONFIG + "mse/domicilio/buscar/" + this.state.id)
+        .then(response => {
         return response.json();
-      })
+        })
       .then(alumnoDomicilio => {
-        console.log("---AlumnoDomicilio---");
-        console.log(alumnoDomicilio);
-
         this.setState({
           domicilioActual: alumnoDomicilio.domicilio,
           ubigeo: alumnoDomicilio.ubigeo.trim(),
           estadoDomicilio: true
         });
       })
+      })
+      .then(()=>{
+        //arreglo de telefonos de la base de datos
+         fetch(CONFIG+"mse/telefono/telefonos/"+this.state.id)
+          .then(respuesta=>{
+          return respuesta.json();
+      })
+          .then(telefonos=>{
+          this.setState({
+          arrayTelefonos:telefonos
+        })
+      })
+      })
+      .then(()=>{
+        //arreglo de correos de la base de datos
+        fetch(CONFIG+"mse/correo/correos/"+this.state.id)
+        .then(respuesta=>{
+        return respuesta.json();
+      })
+        .then(correos=>{
+        this.setState({
+          arrayCorreos:correos
+        })
+      })
+      })
       .catch(error => {
-        swal("Falta registrar su domicilio", " ", "warning");
+        swal("Algo salió mal", "", "warning");
         console.log(error);
       });
 
+      //buscar domicilio
+    
+      // .catch(error => {
+      //   swal("Falta registrar su domicilio", " ", "warning");
+      //   console.log(error);
+      // });
+
   
+      //Buscar tipos de telefono ej: fijo-mobil
       fetch(CONFIG + "mse/telefono/tipotelefono/")
       .then(response => {
         return response.json();
       })
       .then(tipoTelefono => {
-        console.log(
-          "---TipoTelefono------TipoTelefono------TipoTelefono--- ---TipoTelefono------TipoTelefono------TipoTelefono-- ---TipoTelefono------TipoTelefono------TipoTelefono-- ---TipoTelefono------TipoTelefono------TipoTelefono--"
-        );
-        console.log(tipoTelefono);
         this.setState({
           arrayTiposTelefono:tipoTelefono
         })
@@ -112,28 +139,27 @@ class VistaDatosPersonales extends React.Component {
       });
 
 
-
+      //Buscar tipos de correo
       fetch(CONFIG + "mse/correo/tipoCorreo/")
       .then(response => {
         return response.json();
       })
       .then(tipoCorreo => {
-        console.log(
-          "---tipoCorreo------tipoCorreo------tipoCorreo--- ---tipoCorreo------tipoCorreo----"
-        );
-        console.log(tipoCorreo);
         this.setState({
           arrayTiposCorreo:tipoCorreo
         })
-      
       })
       .catch(error => {
         swal("Algo salió mal", "", "warning");
         console.log(error);
       });
 
+      
+      
 
+     
 
+      //buscar ubigeo de la provincia de lima
       let urlApi =
       "https://raw.githubusercontent.com/ernestorivero/Ubigeo-Peru/master/json/ubigeo_peru_2016_distritos.json";
     fetch(urlApi)
@@ -141,98 +167,50 @@ class VistaDatosPersonales extends React.Component {
         return respuesta.json();
       })
       .then(respuesta2 => {
-        console.log(typeof respuesta2);
-        console.log("ESTOY AQUI ESTOY AQUI ESTOY AQUI ESTOY AQUI ESTOY AQUI ESTOY AQUI ESTOY AQUI ESTOY AQUIESTOY AQUI");
-        console.log(respuesta2); 
         let distritosLima = this.buscarLima(respuesta2);
-
         if (distritosLima === null) {
-          console.log("No hay ningun distrito");
-          console.log(distritosLima);
         } else {
-          console.log("Tenemos los distritos de lima");
           this.setState({
             arrayDistritosLima: distritosLima
           });
         }
       });
-
-
-      console.log("Hola estoy aqui :'v :'v :'v :'v :'v :'v:'v :'v :'v:'v :'v :'v");
-      fetch(CONFIG+"mse/telefono/telefonos/"+this.state.id)
-      .then(respuesta=>{
-        return respuesta.json();
-      })
-      .then(telefonos=>{
-        console.log("Estamos aqui para qe nos veas--- X) X) X) X) Estamos aqui para qe nos veas--- X) X) X) X)");
-        console.log(telefonos);
-        this.setState({
-          arrayTelefonos:telefonos
-        })
-      })
-
-      console.log("Hola estoy aqui :'v :'v :'v :'v :'v :'v:'v :'v :'v:'v :'v :'v");
-      fetch(CONFIG+"mse/correo/correos/"+this.state.id)
-      .then(respuesta=>{
-        return respuesta.json();
-      })
-      .then(correos=>{
-        console.log("Estamos aqui para qe nos veas---CORREOSSSSSSSSS");
-        console.log(correos);
-        this.setState({
-          arrayCorreos:correos
-        })
-      })
   }
 
+  //asignar  a un atributo del estado el valor del campo
   setField(e) {
-    console.log(e.target.name);
-    console.log(e.target.value);
-
     this.setState({ [e.target.name]: e.target.value });
   }
+  
+  //agregar un nuevo telefono
   agregarTelefono=(e) =>{
     e.preventDefault();
-    console.log(this.state.tipoTelefono);
-    console.log(this.state.nTelefono);
     let nuevoTelefono={
       idPersona:this.state.id,
       idTipoTelefono:this.state.tipoTelefono,
       numeroTelefonico:this.state.nTelefono
     }
-    // console.log(nuevoTelefono);
      const arrayTelefonos= [...this.state.arrayTelefonos,nuevoTelefono];
      console.log("El arreglo de telefonos es:",arrayTelefonos);
-     // const arrayTelefonos=this.state.arrayTelefonos.push(nuevoTelefono);
+     //asignamos el nuevo telefono a nuestro estado de telefonos
     this.setState({
       arrayTelefonos:arrayTelefonos
     })
-    console.log(this.state.arrayTelefonos);
+    //Guardamos el nuevo telefono en la base de datos
     this.onSubmitGuardarTelefono(e);
-
   }
+
+//Borramos el telefono de la base de datos
   borrarTelefono = numeroTelefono =>{
-
-
-    console.log(numeroTelefono);
-    
-    //leer el state
     const telefonosActuales= [...this.state.arrayTelefonos];
-    console.log("Antes...");
-    console.log(telefonosActuales);
-    
-
     //borrar el elemento del state
     const arrayTelefonos= telefonosActuales.filter(telefono=>telefono.numeroTelefonico!== numeroTelefono);
-    console.log("Despues...");
-    console.log(arrayTelefonos);
-    
-
     //actualizar el state
     this.setState({
       arrayTelefonos
     })
 
+    //Eliminamos el telefono de la base de datos
     fetch(CONFIG + "mse/telefono/eliminar/"+numeroTelefono,{
       method: "DELETE",
       body: JSON.stringify({
@@ -248,55 +226,33 @@ class VistaDatosPersonales extends React.Component {
       
     })
 } 
-
-
-
+//Agregamos un nuevo correo al state y guardamos el correo en la base de datos
   agregarCorreo=(e)=>{
     e.preventDefault();
-    console.log(this.state.nombreCorreo);
-    console.log(this.state.tipoCorreo);
     let nuevoCorreo={
       id:this.state.id,
       idTipoCorreo:this.state.tipoCorreo,
       correo:this.state.nombreCorreo
-    }
-    // console.log(nuevoTelefono);
-    
+    } 
      const arrayCorreos= [...this.state.arrayCorreos,nuevoCorreo];
-     console.log("El arreglo de correos es:",arrayCorreos);
-     
-    // const arrayTelefonos=this.state.arrayTelefonos.push(nuevoTelefono);
-    console.log(1);
-    
     this.setState({
       arrayCorreos
     })
     this.onSubmitGuardarCorreo(e);
   }
 
+  //Borramos un correo del state y de la base de datos
     borrarCorreo = correoBorrar =>{
-
-
-    console.log("El correo a borarr es : -> El correo a borarr es : -> El correo a borarr es : ->",correoBorrar);
-    
-    //leer el state
+        //leer el state
     const correosActuales= [...this.state.arrayCorreos];
-    console.log("Antes...");
-    console.log(correosActuales);
     
-
     //borrar el elemento del state
     const arrayCorreos= correosActuales.filter(correo=>correo.correo!== correoBorrar);
-    console.log("Despues...");
-    console.log(arrayCorreos);
-    
-
     //actualizar el state
     this.setState({
       arrayCorreos
     })
-
-
+    //Eliminamos el correo de la base de datos
     fetch(CONFIG + "mse/correo/eliminar/",{
       method: "DELETE",
       body: JSON.stringify({
@@ -323,11 +279,6 @@ class VistaDatosPersonales extends React.Component {
     let arrayTiposCorreo=this.state.arrayTiposCorreo;
 
     if (distritosLima) {
-      console.log(
-        "Se cargaron correctamente los distritos de lima ",
-        distritosLima
-      );
-
       contenido = (
         <div className="contenedor">
           <div className="">
@@ -377,7 +328,7 @@ class VistaDatosPersonales extends React.Component {
                     <input
                       type="date"
                       name="fechaNacimiento"
-                      value={this.state.fechaNacimiento}
+                      value={this.state.fechaNacimiento || ''}
                       disabled
                     />
                   </label>
@@ -592,7 +543,6 @@ class VistaDatosPersonales extends React.Component {
   //Deshabilitar y habilitar campos
   cambioEstadoCampo = e => {
     e.preventDefault();
-    console.log("Evaluaremos el estado");
     let domicilioActual = document.getElementById("domicilioActual");
     let ubigeo = document.getElementById("ubigeo");
     let tipoTelefono = document.getElementById("tipoTelefono");
@@ -615,28 +565,15 @@ class VistaDatosPersonales extends React.Component {
   onSubmitGeneral = e => {
     e.preventDefault();
     if (this.state.estadoDomicilio) {
-      console.log("Se va a editar el domicilio de una persona");
-
       this.onSubmitEditarDomicilio(e);
     } else {
-      console.log("Se va a Guardar el domicilio de una persona");
       this.onSubmitGuardarDomicilioPersona(e);
     }
   };
 
-//Metodo para guardar el telefono
+//Metodo para guardar el telefono en la base de datos
   onSubmitGuardarTelefono = e =>{
     e.preventDefault();
-    console.log("--ENVIAREMOS LOS DATOS DEL TELEFONO");
-    console.log(
-    JSON.stringify({
-      idPersona: this.state.id,
-      idTipoTelefono:this.state.tipoTelefono,
-      numeroTelefonico:this.state.nTelefono
-
-    })
-    )
-
     fetch(CONFIG + "mse/telefono/guardar/", {
       method: "POST",
       body: JSON.stringify({
@@ -654,19 +591,10 @@ class VistaDatosPersonales extends React.Component {
         swal("Guardado Correctamente", "", "success");
       })
   }
+  //Metodo para guardar el correo en la base de datos
   onSubmitGuardarCorreo=(e)=>{
     e.preventDefault();
-    console.log("Enviaremos los datos del correo");
-    console.log(
-    JSON.stringify({
-      id: this.state.id ,
-      idTipoCorreo: this.state.tipoCorreo,
-      correo: this.state.nombreCorreo
-
-    })
-    )
-
-    fetch(CONFIG + "mse/correo/guardar/", {
+      fetch(CONFIG + "mse/correo/guardar/", {
       method: "POST",
       body: JSON.stringify({
         id: this.state.id ,
@@ -688,14 +616,6 @@ class VistaDatosPersonales extends React.Component {
   //Metodo para guardar el domicilio de una persona
   onSubmitGuardarDomicilioPersona = e => {
     e.preventDefault();
-    console.log("---DATOS A ENVIAR---");
-    console.log(
-      JSON.stringify({
-        id: this.state.id,
-        domicilio: this.state.domicilioActual,
-        ubigeo: this.state.ubigeo
-      })
-    );
     fetch(CONFIG + "mse/domicilio/guardar/", {
       method: "POST",
       body: JSON.stringify({
@@ -756,41 +676,14 @@ class VistaDatosPersonales extends React.Component {
 
     //De momento este codigo no es utilizado para nada
     e.preventDefault();
-    console.log("---ENVIA---");
-    console.log(
-      JSON.stringify({
-        codigoAlumno: this.state.codigo,
-        dni: this.state.dni,
-        apellidoPaterno: this.state.apePaterno,
-        apellidoMaterno: this.state.apeMaterno,
-        nombre: this.state.nombre,
-        fechaNacimiento: this.state.fechaNacimiento,
-        domicilioActual: this.state.domicilioActual,
-        distrito: this.state.distrito,
-        ubigeo: this.state.ubigeo,
-        telefonoFijo: this.state.nTelefFijo,
-        telefonoCelular: this.state.nTelefCelular,
-        correoPersonal: this.state.correoPersonal,
-        correoLaboral: this.state.correoLaboral
-      })
-    );
-
-    fetch(CONFIG + "mse/alumno/actualizar/", {
+    fetch(CONFIG + "mse/persona/update/", {
       method: "PUT",
       body: JSON.stringify({
-        codigoAlumno: this.state.codigo,
-        dni: this.state.dni,
-        apellidoPaterno: this.state.apePaterno,
-        apellidoMaterno: this.state.apeMaterno,
-        nombre: this.state.nombre,
-        fechaNacimiento: this.state.fechaNacimiento,
-        domicilioActual: this.state.domicilioActual,
-        distrito: this.state.distrito,
-        ubigeo: this.state.ubigeo,
-        telefonoFijo: this.state.nTelefFijo,
-        telefonoCelular: this.state.nTelefCelular,
-        correoPersonal: this.state.correoPersonal,
-        correoLaboral: this.state.correoLaboral
+          id:this.state.id,
+          apePaterno: this.state.apellidoPaterno,
+          apeMaterno: this.state.apellidoMaterno,
+          nombre: this.state.nombres,
+          fechaNacimiento: this.state.fechaNacimiento,
       }),
       headers: {
         Accept: "application/json",
@@ -801,9 +694,9 @@ class VistaDatosPersonales extends React.Component {
         swal("Actualizado Correctamente", "", "success");
         return response.json();
       })
-      .then(alumno => {
+      .then(persona => {
         console.log("---RESPUESTA---");
-        console.log(alumno);
+        console.log(persona);
       })
       .catch(error => {
         swal("Algo salió mal", "", "warning");

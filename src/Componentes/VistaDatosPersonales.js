@@ -24,7 +24,7 @@ class VistaDatosPersonales extends React.Component {
         apePaterno: "",
         apeMaterno: "",
         nombre: "",
-        fechaNacimiento: "",
+        fechaNacimiento:"",
         domicilioActual: "",
         distrito: "",
         ubigeo: "",
@@ -47,7 +47,7 @@ class VistaDatosPersonales extends React.Component {
       console.log(3);
       
 
-    this.onSubmitDatosPersonales = this.onSubmitDatosPersonales.bind(this);
+    // this.onSubmitDatosPersonales = this.onSubmitDatosPersonales.bind(this);
   }
 
 
@@ -67,7 +67,7 @@ class VistaDatosPersonales extends React.Component {
           apePaterno: persona.apellidoPaterno,
           apeMaterno: persona.apellidoMaterno,
           nombre: persona.nombres,
-          fechaNacimiento: persona.fechaNacimiento
+          fechaNacimiento: persona.fechaNac
         
         });
 
@@ -293,7 +293,8 @@ class VistaDatosPersonales extends React.Component {
                       type="text"
                       name="codigo"
                       value={this.state.codigo}
-                      disabled
+                      onChange={e => this.setField(e)}
+                      // disabled
                     />
                   </label>
                   <label className="label-dato">
@@ -302,7 +303,8 @@ class VistaDatosPersonales extends React.Component {
                       type="text"
                       name="apePaterno"
                       value={this.state.apePaterno}
-                      disabled
+                      onChange={e => this.setField(e)}
+                      // disabled
                     />
                   </label>
                   <label className="label-dato">
@@ -311,7 +313,8 @@ class VistaDatosPersonales extends React.Component {
                       type="text"
                       name="apeMaterno"
                       value={this.state.apeMaterno}
-                      disabled
+                      onChange={e => this.setField(e)}
+                      // disabled
                     />
                   </label>
                   <label className="label-dato">
@@ -320,7 +323,8 @@ class VistaDatosPersonales extends React.Component {
                       type="text"
                       name="nombre"
                       value={this.state.nombre}
-                      disabled
+                      onChange={e => this.setField(e)}
+                      // disabled
                     />
                   </label>
                   <label className="label-dato">
@@ -329,7 +333,8 @@ class VistaDatosPersonales extends React.Component {
                       type="date"
                       name="fechaNacimiento"
                       value={this.state.fechaNacimiento || ''}
-                      disabled
+                      onChange={e => this.setField(e)}
+                      //disabled
                     />
                   </label>
                 </div>
@@ -521,7 +526,7 @@ class VistaDatosPersonales extends React.Component {
                   <div className="text-right">
                     <input
                       type="submit"
-                      value="Enviar"
+                      value="Registrar"
                       className="btn btn-success right"
                       onClick={this.onSubmitDatosPersonales}
                     />
@@ -676,14 +681,27 @@ class VistaDatosPersonales extends React.Component {
 
     //De momento este codigo no es utilizado para nada
     e.preventDefault();
+    console.log("******************************");
+    
+    console.log(JSON.stringify({
+        id:this.state.id,
+          dni:this.state.dni,
+          apellidoPaterno: this.state.apePaterno,
+          apellidoMaterno: this.state.apeMaterno,
+          nombres: this.state.nombre,
+          fechaNac: this.state.fechaNacimiento
+    }))
+    console.log("******************************");
     fetch(CONFIG + "mse/persona/update/", {
       method: "PUT",
       body: JSON.stringify({
           id:this.state.id,
-          apePaterno: this.state.apellidoPaterno,
-          apeMaterno: this.state.apellidoMaterno,
-          nombre: this.state.nombres,
-          fechaNacimiento: this.state.fechaNacimiento,
+          dni:this.state.dni,
+          apellidoPaterno: this.state.apePaterno,
+          apellidoMaterno: this.state.apeMaterno,
+          nombres: this.state.nombre,
+          fechaNac: this.state.fechaNacimiento
+          
       }),
       headers: {
         Accept: "application/json",
@@ -695,13 +713,41 @@ class VistaDatosPersonales extends React.Component {
         return response.json();
       })
       .then(persona => {
-        console.log("---RESPUESTA---");
+        console.log("---RESPUESTAPersona---");
         console.log(persona);
       })
       .catch(error => {
         swal("Algo salió mal", "", "warning");
         console.log(error);
       });
+
+      fetch(CONFIG + "mse/alumno/actualizar/", {
+        method: "PUT",
+        body: JSON.stringify({
+            codigoAlumno:this.state.codigo,
+            apellidoPaterno:this.state.apePaterno,
+            apellidoMaterno:this.state.apeMaterno,
+            nombre:this.state.nombre,
+            fechaNacimiento:this.state.fechaNacimiento
+            
+        }),
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json"
+        }
+      })
+        .then(response => {
+          swal("Actualizado Correctamente", "", "success");
+          return response.json();
+        })
+        .then(persona => {
+          console.log("---RESPUESTA---");
+          console.log(persona);
+        })
+        .catch(error => {
+          swal("Algo salió mal", "", "warning");
+          console.log(error);
+        });
 
     //Envior los datos del domicilio y ubigeo
     this.onSubmitGeneral(e);

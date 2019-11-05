@@ -71,10 +71,9 @@ class VistaDatosPersonales extends React.Component {
         
         });
 
+        return fetch(CONFIG + "mse/domicilio/buscar/" + this.state.id);
       })
-      .then(()=>{
-        fetch(CONFIG + "mse/domicilio/buscar/" + this.state.id)
-        .then(response => {
+      .then(response => {
         return response.json();
         })
       .then(alumnoDomicilio => {
@@ -83,31 +82,24 @@ class VistaDatosPersonales extends React.Component {
           ubigeo: alumnoDomicilio.ubigeo.trim(),
           estadoDomicilio: true
         });
-      })
-      })
-      .then(()=>{
-        //arreglo de telefonos de la base de datos
-         fetch(CONFIG+"mse/telefono/telefonos/"+this.state.id)
-          .then(respuesta=>{
+        return fetch(CONFIG+"mse/telefono/telefonos/"+this.state.id);
+      }) 
+      .then(respuesta=>{
           return respuesta.json();
       })
-          .then(telefonos=>{
+      .then(telefonos=>{
           this.setState({
           arrayTelefonos:telefonos
         })
-      })
-      })
-      .then(()=>{
-        //arreglo de correos de la base de datos
-        fetch(CONFIG+"mse/correo/correos/"+this.state.id)
-        .then(respuesta=>{
+        return fetch(CONFIG+"mse/correo/correos/"+this.state.id);
+      })  
+      .then(respuesta=>{
         return respuesta.json();
       })
-        .then(correos=>{
+      .then(correos=>{
         this.setState({
           arrayCorreos:correos
         })
-      })
       })
       .catch(error => {
         swal("Algo salió mal", "", "warning");
@@ -200,8 +192,39 @@ class VistaDatosPersonales extends React.Component {
     this.onSubmitGuardarTelefono(e);
   }
 
+  eleccionBorrarTelefono = (numeroTelefono) =>{
+    swal({
+      title: "¿Estas seguro?",
+      text: "Este registro ya no podra ser recuperado?",
+      icon: "warning",
+      dangerMode: true,
+      buttons: true
+    })
+    .then(willDelete => {
+      if (willDelete) {
+        this.borrarTelefono(numeroTelefono);
+        swal("Eliminado!", "Tu numero telefonico ha sidoo eliminado!", "success");
+      }
+    });
+  }
+  eleccionBorrarCorreoElectronico=(correoElectronico)=>{
+    swal({
+      title: "¿Estas seguro?",
+      text: "Este registro ya no podra ser recuperado?",
+      icon: "warning",
+      dangerMode: true,
+      buttons: true
+    })
+    .then(willDelete => {
+      if (willDelete) {
+        this.borrarCorreo(correoElectronico);
+        swal("Eliminado!", "Tu correo electronico ha sidoo eliminado!", "success");
+      }
+    });
+  }
 //Borramos el telefono de la base de datos
   borrarTelefono = numeroTelefono =>{
+    
     const telefonosActuales= [...this.state.arrayTelefonos];
     //borrar el elemento del state
     const arrayTelefonos= telefonosActuales.filter(telefono=>telefono.numeroTelefonico!== numeroTelefono);
@@ -221,10 +244,10 @@ class VistaDatosPersonales extends React.Component {
       "Content-Type": "application/json"
     }
   })
-    .then(response => {
-      swal("Eliminado correctamente", "", "success");
-      
-    })
+  .catch((errorNumeroTelefono)=>{
+    console.log(errorNumeroTelefono);
+    
+  })
 } 
 //Agregamos un nuevo correo al state y guardamos el correo en la base de datos
   agregarCorreo=(e)=>{
@@ -263,8 +286,8 @@ class VistaDatosPersonales extends React.Component {
       "Content-Type": "application/json"
     }
   })
-    .then(response => {
-      swal("Eliminado correctamente", "", "success");
+    .catch((error) => {
+      swal("Ha ocurrido un error", "", "warning");
     })
 
 } 
@@ -283,10 +306,9 @@ class VistaDatosPersonales extends React.Component {
         <div className="contenedor">
           <div className="">
             <h2 className="titulo">Datos Personales</h2>
-
             <div className="input-dato">
                <div className="card card-primary">
-                <div className="container bg-white">
+                <div className="ml-3 mr-3 bg-white">
                   <label className="label-dato">
                     N° DE DOCUMENTO DE IDENTIDAD (DNI O CARNE DE EXTRANJERÍA):
                     <input
@@ -294,7 +316,7 @@ class VistaDatosPersonales extends React.Component {
                       name="codigo"
                       value={this.state.codigo}
                       onChange={e => this.setField(e)}
-                      // disabled
+                      disabled
                     />
                   </label>
                   <label className="label-dato">
@@ -344,7 +366,7 @@ class VistaDatosPersonales extends React.Component {
               <div className="container bg-white card card-primary ">
                 <div className="bg-light">
                   <button type="button" onClick={this.cambioEstadoCampo}>
-                    <i className="fa fa-edit fa-2x"></i>
+                    <i className="fa fa-edit fa-2x">Editar</i>
                   </button>            
                 </div>
                  
@@ -444,7 +466,7 @@ class VistaDatosPersonales extends React.Component {
                                   key={telefono}
                                   tipo={arrayTelefonos[telefono].idTipoTelefono}
                                   numero={arrayTelefonos[telefono].numeroTelefonico}
-                                  borrarTelefono={this.borrarTelefono}
+                                  eleccionBorrarTelefono={this.eleccionBorrarTelefono}
                                   />
                               ))}
                               </tbody>
@@ -509,16 +531,12 @@ class VistaDatosPersonales extends React.Component {
                                   key={correo}
                                   tipo={arrayCorreos[correo].idTipoCorreo}
                                   correo={arrayCorreos[correo].correo}
-                                  borrarCorreo={this.borrarCorreo}
+                                  eleccionBorrarCorreoElectronico={this.eleccionBorrarCorreoElectronico}
                                   />
                               ))}
                               </tbody>
                               </table>
                 </div>  
-
-
-                
-
               </div>
 
               <div className="row">
@@ -612,7 +630,7 @@ class VistaDatosPersonales extends React.Component {
         "Content-Type": "application/json"
       } 
     })
-      .then(response => {
+      .then(() => {
         swal("Guardado Correctamente", "", "success");
       })
     

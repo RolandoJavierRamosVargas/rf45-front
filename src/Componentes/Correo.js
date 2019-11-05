@@ -5,7 +5,7 @@ class Correo extends Component{
     
     borrarCorreo = e=>{
         e.preventDefault();
-        this.props.borrarCorreo(this.props.correo);
+        this.props.eleccionBorrarCorreoElectronico(this.props.correo);
         
     }
      notification = numero =>  {

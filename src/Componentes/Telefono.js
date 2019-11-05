@@ -4,7 +4,7 @@ class Telefono extends Component{
 
     borrarTelefono = e=>{
         e.preventDefault();
-        this.props.borrarTelefono(this.props.numero);
+        this.props.eleccionBorrarTelefono(this.props.numero);
         
     }
     notification = numero =>  {

@@ -14,10 +14,15 @@ import VistaIntermedia from './Componentes/seleccion-intermedia';
 import ComponenteEditable from './Componentes/ComponenteEditable';
 import Formulario from './Componentes/formulario';
 import VistaSeguimientoEgresado from './Componentes/VistaSeguimientoEgresado';
+import  AgregarDatosFormacionAcademica  from './Componentes/AgregarDatosFormacionAcademica';
+import AgregarDatosFormacionAcademicaSanMarcos from './Componentes/AgregarDatosFormacionAcademicaSanMarcos';
+import ImportarDatosAlumno_programa from './Componentes/ImportarDatosAlumno_Programa';
+
 import 'bootstrap/dist/css/bootstrap.min.css';
 import $ from 'jquery';
 import Popper from 'popper.js';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
+
 
 class Index extends React.Component {
     render() {
@@ -37,6 +42,10 @@ class Index extends React.Component {
             <Route path="/vista/imprimir" component={ComponenteEditable}></Route>
             <Route path="/formulario/:codigo" component={Formulario}></Route>          
             <Route path="/:name/vista/egresado" component={VistaSeguimientoEgresado}></Route>
+            <Route path="/:name/vista/egresado/importarDatosAlumno_programa/:codigo" component={ImportarDatosAlumno_programa}></Route>
+            <Route path="/:name/vista/egresado/agregarDatosFormacionAcademicaSanMarcos/:codigo" component={AgregarDatosFormacionAcademicaSanMarcos}></Route>
+            <Route path="/:name/vista/egresado/agregarDatosFormacionAcademica/:codigo" component={AgregarDatosFormacionAcademica}></Route>
+            
             
           </Router>
           )

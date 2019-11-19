@@ -427,6 +427,7 @@ button {
   cursor: pointer;
   cursor: hand;
   font-family: Arial;
+  margin: 0 10px;
 }
 button.delete {
   position: relative;

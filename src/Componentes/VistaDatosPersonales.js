@@ -13,9 +13,25 @@ import TiposTelefono from "./TiposTelefono";
 import TiposCorreo from "./TiposCorreo";
 
 class VistaDatosPersonales extends React.Component {
+
+  
+  numeroIdentificador=5;
   constructor(props) {
     super(props);
 
+
+       this.botonEditarCampos = React.createRef();
+       this.codigo = React.createRef();
+       this.dni = React.createRef();
+       this.apePaterno =React.createRef();
+       this.apeMaterno = React.createRef();
+       this.nombre =React.createRef();
+       this.fechaNacimiento =React.createRef();
+       this.botonTelefono=React.createRef();
+       this.botonCorreo=React.createRef();
+
+      //
+      
     
       this.state = {
         codigo: this.props.codigo,
@@ -41,10 +57,11 @@ class VistaDatosPersonales extends React.Component {
         arrayTiposTelefono:[],
         arrayTelefonos:[],
         arrayTiposCorreo:[],
-        estadoDomicilio: false
+        estadoDomicilio: false,
+        
       };
       
-      console.log(3);
+      
       
 
     // this.onSubmitDatosPersonales = this.onSubmitDatosPersonales.bind(this);
@@ -53,9 +70,34 @@ class VistaDatosPersonales extends React.Component {
 
   //RENDERIZADO INFINITO
   componentDidMount() {
-    
-    console.log(2);
-    
+    this.botonEditarCampos.current.disabled=true;
+    this.botonTelefono.current.disabled=true;
+    this.botonCorreo.current.disabled=true;
+
+    fetch(CONFIG + "mse/persona/aperturaConcepto/"+this.numeroIdentificador)
+    .then((response)=>{
+      return response.json();
+    })
+    .then((respuesta)=>{
+      console.log("La respuesta de la peticion get es: ",respuesta);
+      
+      
+      let editarCampos=respuesta.estadoConcepto;
+      console.log(editarCampos);
+      
+      if(editarCampos=="S"){
+        console.log("entro a editar campos");
+        
+        this.botonEditarCampos.current.disabled=false;
+
+      }else{
+        console.log("No se podra editar campos");
+        
+      }
+      
+
+    })
+
     //buscar persona segun su codigo
     fetch(CONFIG + "mse/persona/buscar/" + this.state.codigo)
       .then(response => {
@@ -64,6 +106,7 @@ class VistaDatosPersonales extends React.Component {
       .then(persona => {
         this.setState({
           id:persona.id,
+          dni:persona.dni,
           apePaterno: persona.apellidoPaterno,
           apeMaterno: persona.apellidoMaterno,
           nombre: persona.nombres,
@@ -105,14 +148,6 @@ class VistaDatosPersonales extends React.Component {
         swal("Algo salió mal", "", "warning");
         console.log(error);
       });
-
-      //buscar domicilio
-    
-      // .catch(error => {
-      //   swal("Falta registrar su domicilio", " ", "warning");
-      //   console.log(error);
-      // });
-
   
       //Buscar tipos de telefono ej: fijo-mobil
       fetch(CONFIG + "mse/telefono/tipotelefono/")
@@ -145,12 +180,6 @@ class VistaDatosPersonales extends React.Component {
         swal("Algo salió mal", "", "warning");
         console.log(error);
       });
-
-      
-      
-
-     
-
       //buscar ubigeo de la provincia de lima
       let urlApi =
       "https://raw.githubusercontent.com/ernestorivero/Ubigeo-Peru/master/json/ubigeo_peru_2016_distritos.json";
@@ -176,6 +205,12 @@ class VistaDatosPersonales extends React.Component {
   
   //agregar un nuevo telefono
   agregarTelefono=(e) =>{
+    if(this.botonTelefono.current.disabled==true){
+      console.log("No se hace nada");
+      
+    }else{
+
+    
     e.preventDefault();
     let nuevoTelefono={
       idPersona:this.state.id,
@@ -190,6 +225,8 @@ class VistaDatosPersonales extends React.Component {
     })
     //Guardamos el nuevo telefono en la base de datos
     this.onSubmitGuardarTelefono(e);
+
+    }
   }
 
   eleccionBorrarTelefono = (numeroTelefono) =>{
@@ -251,6 +288,12 @@ class VistaDatosPersonales extends React.Component {
 } 
 //Agregamos un nuevo correo al state y guardamos el correo en la base de datos
   agregarCorreo=(e)=>{
+    if(this.botonCorreo.current.disabled==true){
+      console.log("No se hace nada en el correo");
+      
+    }else{
+
+    
     e.preventDefault();
     let nuevoCorreo={
       id:this.state.id,
@@ -263,6 +306,7 @@ class VistaDatosPersonales extends React.Component {
     })
     this.onSubmitGuardarCorreo(e);
   }
+}
 
   //Borramos un correo del state y de la base de datos
     borrarCorreo = correoBorrar =>{
@@ -285,7 +329,10 @@ class VistaDatosPersonales extends React.Component {
       Accept: "application/json",
       "Content-Type": "application/json"
     }
-  })
+
+    }
+
+  )
     .catch((error) => {
       swal("Ha ocurrido un error", "", "warning");
     })
@@ -306,57 +353,87 @@ class VistaDatosPersonales extends React.Component {
         <div className="contenedor">
           <div className="">
             <h2 className="titulo">Datos Personales</h2>
+
             <div className="input-dato">
                <div className="card card-primary">
                 <div className="ml-3 mr-3 bg-white">
+                  <br></br>
+                <div className="bg-light" >
+                  <button type="button" className="btn btn-outline-danger" ref={this.botonEditarCampos} onClick={this.cambiarEstadoDatosPersonalesPrivados}  >
+                    <i className="fa fa-edit fa-2x"></i>
+                  </button> 
+
+                </div>
+
                   <label className="label-dato">
                     N° DE DOCUMENTO DE IDENTIDAD (DNI O CARNE DE EXTRANJERÍA):
                     <input
+                      ref={this.codigo}
                       type="text"
                       name="codigo"
+                
                       value={this.state.codigo}
                       onChange={e => this.setField(e)}
                       disabled
                     />
                   </label>
                   <label className="label-dato">
+                    DNI
+                    <input
+                      ref={this.dni}
+                      type="text"
+                      name="dni"
+                 
+                      value={this.state.dni || ''}
+                      onChange={e => this.setField(e)}
+                       disabled
+                    />
+                  </label>
+                  <label className="label-dato">
                     APELLIDO PATERNO:
                     <input
+                      ref={this.apePaterno}
                       type="text"
                       name="apePaterno"
+              
                       value={this.state.apePaterno}
                       onChange={e => this.setField(e)}
-                      // disabled
+                      disabled
                     />
                   </label>
                   <label className="label-dato">
                     APELLIDO MATERNO:
                     <input
+                      ref={this.apeMaterno}
                       type="text"
                       name="apeMaterno"
+                   
                       value={this.state.apeMaterno}
                       onChange={e => this.setField(e)}
-                      // disabled
+                     disabled
                     />
                   </label>
                   <label className="label-dato">
                     NOMBRES:
                     <input
+                      ref={this.nombre}
                       type="text"
                       name="nombre"
+                   
                       value={this.state.nombre}
                       onChange={e => this.setField(e)}
-                      // disabled
+                      disabled
                     />
                   </label>
                   <label className="label-dato">
                     FECHA DE NACIMIENTO:
                     <input
+                      ref={this.fechaNacimiento}
                       type="date"
                       name="fechaNacimiento"
                       value={this.state.fechaNacimiento || ''}
                       onChange={e => this.setField(e)}
-                      //disabled
+                      disabled
                     />
                   </label>
                 </div>
@@ -365,8 +442,8 @@ class VistaDatosPersonales extends React.Component {
                
               <div className="container bg-white card card-primary ">
                 <div className="bg-light">
-                  <button type="button" onClick={this.cambioEstadoCampo}>
-                    <i className="fa fa-edit fa-2x">Editar</i>
+                  <button type="button" className="btn btn-outline-danger" onClick={this.cambioEstadoCampo}>
+                    <i className="fa fa-edit fa-2x"></i>
                   </button>            
                 </div>
                  
@@ -440,7 +517,7 @@ class VistaDatosPersonales extends React.Component {
                       </div>
                       <div className="col col-md-2 text-center">
                         
-                        <button className="bg-white" id="btnTelefono" onClick={this.agregarTelefono}>
+                        <button className="bg-white" ref={this.botonTelefono} id="btnTelefono" onClick={this.agregarTelefono}>
                           <i className="fa fa-plus-circle fa-3x"></i>
                         </button>
                         
@@ -508,7 +585,7 @@ class VistaDatosPersonales extends React.Component {
                         </div>
                       </div>
                       <div className="col col-md-2 text-center">
-                        <button className="bg-white" onClick={this.agregarCorreo}>
+                        <button className="bg-white" ref={this.botonCorreo} onClick={this.agregarCorreo}>
                           <i className="fa fa-plus-circle fa-3x"></i>
                         </button>
                       </div>
@@ -565,12 +642,14 @@ class VistaDatosPersonales extends React.Component {
 
   //Deshabilitar y habilitar campos
   cambioEstadoCampo = e => {
+    console.log("funciona esto");
+    
     e.preventDefault();
     let domicilioActual = document.getElementById("domicilioActual");
     let ubigeo = document.getElementById("ubigeo");
     let tipoTelefono = document.getElementById("tipoTelefono");
     let numeroTelefono = document.getElementById("numeroTelefono");
-    let btnTelefono = document.getElementById("btnTelefono");
+    
     let tipoCorreo = document.getElementById("tipoCorreo");
     let nombreCorreo = document.getElementById("nombreCorreo");
    
@@ -580,9 +659,30 @@ class VistaDatosPersonales extends React.Component {
     tipoTelefono.disabled=!tipoTelefono.disabled;
     numeroTelefono.disabled=!numeroTelefono.disabled;
     tipoCorreo.disabled=!tipoCorreo.disabled;
-    nombreCorreo.disabled=!nombreCorreo.disabled
+    nombreCorreo.disabled=!nombreCorreo.disabled;
+    this.botonTelefono.current.disabled=!this.botonTelefono.current.disabled;
+    this.botonCorreo.current.disabled=!this.botonCorreo.current.disabled;
 
   };
+
+  cambiarEstadoDatosPersonalesPrivados= e=>{
+      e.preventDefault();
+
+      if(!this.botonEditarCampos.current.disabled){
+        this.codigo.current.disabled =!this.codigo.current.disabled; 
+       this.dni.current.disabled =!this.dni.current.disabled; 
+       this.apePaterno.current.disabled =!this.apePaterno.current.disabled;
+       this.apeMaterno.current.disabled =!this.apeMaterno.current.disabled; 
+       this.nombre.current.disabled =!this.nombre.current.disabled;
+       this.fechaNacimiento.current.disabled =!this.fechaNacimiento.current.disabled;
+      }else{
+        
+        
+        console.log("El boton esta deshabilitado");
+        
+       
+      }
+  }
 
   //Metodo para guardar o editar el domicilio de una persona
   onSubmitGeneral = e => {
@@ -743,6 +843,7 @@ class VistaDatosPersonales extends React.Component {
         method: "PUT",
         body: JSON.stringify({
             codigoAlumno:this.state.codigo,
+            dni:this.state.dni,
             apellidoPaterno:this.state.apePaterno,
             apellidoMaterno:this.state.apeMaterno,
             nombre:this.state.nombre,

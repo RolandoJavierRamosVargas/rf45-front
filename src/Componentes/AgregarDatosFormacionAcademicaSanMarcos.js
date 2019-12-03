@@ -21,7 +21,10 @@ class AgregarDatosFormacionAcademicaSanMarcos extends Component {
           id:0,
           dni:0,
           niveles: [],
-          programas:[]
+          programas:[],
+          tiposInstitucion:[],
+          listaInstitucion:[]
+
         };
         console.log(this.state.codigo);
       }
@@ -90,6 +93,26 @@ class AgregarDatosFormacionAcademicaSanMarcos extends Component {
         console.error(error);
       });
 
+      
+
+
+      console.log("*************************************************")
+      fetch(CONFIG + "/mse/persona/listarInstitucion/")
+      .then(response => {
+        return response.json();
+      })
+      .then(tipoInstitucion => {
+        this.setState({ 
+          tiposInstitucion: tipoInstitucion
+        });
+        console.log("estos son los tipos de institucion ->>>>>>->>>>>>->>>>>>", tipoInstitucion);
+        
+      })
+      .catch(error => {
+        console.error(error);
+      });
+
+      //Aqui tenemos la lista de Instituciones
 
     }
 
@@ -106,7 +129,7 @@ class AgregarDatosFormacionAcademicaSanMarcos extends Component {
             <form onSubmit={this.formacionSanMarcos}>
             <div className="container bg-white text-primary">
                 <div className="row">
-                    <h1 className="w-100 text-center"> Formacion Academica</h1>
+                    <h1 className="w-100 text-center"> Formacion Academica San Marcos</h1>
                     <hr/><br/><br/>
                     <div className="col col-md-6">
                         <div className="container bg-white mt-2">
@@ -114,14 +137,15 @@ class AgregarDatosFormacionAcademicaSanMarcos extends Component {
                         <div className="form-group">
                           <div className="row">
                               <label className="col col-md-4">Nivel</label> 
-                                 <select className="form-control col col-md-8" ref={this.nivel} name="" id="">
+                              <input type="text" className="form-control col col-md-8" ref={this.nivel} value="Universitario" placeholder="" disabled />
+                                 {/* <select className="form-control col col-md-8" ref={this.nivel} name="" id="">
                                    <option>--Seleccione--</option>
                                    {Object.keys(niveles).map(nivel=>(
                                    <option key={nivel} value={niveles[nivel].nivel_id}>{niveles[nivel].nivel_desc}</option>
                                 //    <option>{nivel}</option>
                                    ))}
                                  </select>
-                               
+                                */}
                            </div>  
                            
                         </div>
@@ -140,13 +164,20 @@ class AgregarDatosFormacionAcademicaSanMarcos extends Component {
                            </div>  
                            
                         </div>
-            
+
                         <div className="form-group">
+                            <div className="row">
+                                <label className="col col-md-4">Facultad</label> 
+                                <input type="text" className="form-control col col-md-8" ref={this.facultad}/>
+                            </div>
+                        </div>
+            
+                        {/* <div className="form-group">
                             <div className="row">
                                 <label className="col col-md-4">Centro de estudios</label> 
                                 <input type="text" className="form-control col col-md-8" ref={this.centroEstudios} value="Universidad Nacional Mayor de San Marcos" placeholder="ingrese el centro de estudios" disabled/>
                             </div>
-                        </div>
+                        </div> */}
                       </div>
                       
                     </div>
@@ -156,10 +187,17 @@ class AgregarDatosFormacionAcademicaSanMarcos extends Component {
 
                        <div className="form-group">
                             <div className="row">
+                                <label className="col col-md-4">institucion</label> 
+                                <input type="text" className="form-control col col-md-8" ref={this.institucion} value="Universidad Nacional Mayor de San Marcos" disabled/>
+                            </div>
+                        </div>
+
+                       {/* <div className="form-group">
+                            <div className="row">
                                 <label className="col col-md-4">Facultad</label> 
                                 <input type="text" className="form-control col col-md-8" ref={this.facultad} value="Ingenieria de Sistemas e Informatica" disabled/>
                             </div>
-                        </div>
+                        </div> */}
 
 
                         <div className="form-group">
@@ -206,11 +244,12 @@ class AgregarDatosFormacionAcademicaSanMarcos extends Component {
         body: JSON.stringify({
             persona_id:this.state.id,
             id_programa:this.programa.current.value,
-            nivel_id:this.nivel.current.value,
+            nivel_id:1,
             formacion_calumno:this.state.codigo,
             formacion_fingreso:this.fechaInicio.current.value,
             formacion_fegreso:this.fechaFin.current.value ,
-            modalidad:0
+            modalidad:0,
+            institucion_id:1 //aqui va el id de la universidad nacional mayor de san marcos
             
             
         }),

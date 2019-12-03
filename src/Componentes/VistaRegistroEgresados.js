@@ -22,7 +22,10 @@ class VistaRegistroEgresados extends React.Component {
   }
 
   componentWillMount() {
-    fetch(CONFIG + "mse/persona/buscar/" + this.state.codigo)
+
+     setInterval(()=>{
+       
+      fetch(CONFIG + "mse/persona/buscar/" + this.state.codigo)
       .then(response => {
         return response.json();
       })
@@ -31,13 +34,14 @@ class VistaRegistroEgresados extends React.Component {
           id: persona.id,
           dni: persona.dni
         });
+
         return fetch(CONFIG+"mse/persona/listaFormacion/"+this.state.id);
       })
        .then(respuesta=>{
          return respuesta.json();
        }) 
        .then(listaFormacion=>{
-         console.log(listaFormacion);
+          console.log(listaFormacion);
          this.setState({
            listaFormacion:listaFormacion
          })
@@ -45,6 +49,11 @@ class VistaRegistroEgresados extends React.Component {
        .catch(error=>{
          console.log("Hubo un error",error);
        })
+
+
+     },1000);
+
+    
      
 
   }
@@ -62,7 +71,7 @@ class VistaRegistroEgresados extends React.Component {
 
   render() {
     let listaFormacion=this.state.listaFormacion;
-    console.log(listaFormacion);
+    // console.log(listaFormacion);
     return (
       <div className="contenedor">
         <h1>Formacion Academica</h1>

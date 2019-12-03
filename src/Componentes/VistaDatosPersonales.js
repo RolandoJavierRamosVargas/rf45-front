@@ -145,7 +145,7 @@ class VistaDatosPersonales extends React.Component {
         })
       })
       .catch(error => {
-        swal("Algo salió mal", "", "warning");
+        swal("No se encontro algun dato", "", "warning");
         console.log(error);
       });
   
@@ -161,7 +161,7 @@ class VistaDatosPersonales extends React.Component {
       
       })
       .catch(error => {
-        swal("Algo salió mal", "", "warning");
+        swal("Algo salió mal con el tipo de telefono", "", "warning");
         console.log(error);
       });
 
@@ -177,7 +177,7 @@ class VistaDatosPersonales extends React.Component {
         })
       })
       .catch(error => {
-        swal("Algo salió mal", "", "warning");
+        swal("Algo salió mal con el tipo de correo", "", "warning");
         console.log(error);
       });
       //buscar ubigeo de la provincia de lima

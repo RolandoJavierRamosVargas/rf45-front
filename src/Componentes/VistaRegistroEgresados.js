@@ -114,7 +114,7 @@ class VistaRegistroEgresados extends React.Component {
             {Object.keys(listaFormacion).map(formacion=>(
               <tr key={formacion}>
                   <td scope="row">{listaFormacion[formacion].codigoPersona}</td>
-                  <td>UNMSM</td>
+                  <td>{listaFormacion[formacion].institucion_desc}</td>
                   <td>{listaFormacion[formacion].nombrePrograma}</td>
                   <td>{listaFormacion[formacion].formacion_fingreso}</td>
                   <td>{listaFormacion[formacion].formacion_fegreso}</td>

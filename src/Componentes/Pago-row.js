@@ -917,6 +917,7 @@ class PagoRow extends React.Component {
 
         <td className="td">
           <table>
+            
             <td>
               {this.state.moneda}
             </td>

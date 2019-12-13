@@ -809,8 +809,8 @@ this.setState({
           <div className="row">
             <div className="  col-md-12">
               {/*Inicio*/}
-              <div id="mySidebar" class="sidebar">
-                <a href="javascript:void(0)" class="closebtn" onClick={this.closeNav}>×</a>
+              <div id="mySidebar" className="sidebar">
+                <a href="javascript:void(0)" className="closebtn" onClick={this.closeNav}>×</a>
                 <a href="#" onClick={this.seguimientoEgresados}>Seguimiento de Egresados</a>
                 <a href="#" onClick={this.enviarFormulario}>Revisar Beneficio</a>
                 <a href="#" onClick={this.Regresar}>Regresar</a>
